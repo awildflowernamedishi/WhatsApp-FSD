@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Flask-SocketIO Example</title>
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+    <style>
+        
+    </style>
+    <link rel="stylesheet" href="../static/styles.css"/>
+</head>
+
+<body>
+
+    <div id="landing">
+        <h2><em>Join to Chit-Chat!</em></h2>
+        <input type="text" id="username" placeholder="Username">
+        <button id="join-button">Join</button>
+    </div>
+
+    <div id="chat" style="display:none;">
+        <ul id="chat-messages">
+        </ul>
+        <input type="text" id="message" placeholder="Enter a message">
+    </div>
+
+    <script>
+        console.log(window.location.host);
+        const socket = io({ autoConnect: false });
+
+        document.getElementById("join-button").addEventListener("click", function () {
+            let username = document.getElementById("username").value;
+            console.log("Join pressed");
+            socket.connect();
+            socket.emit("user-join", username);
+
+            document.getElementById("chat").style.display = "block";
+            document.getElementById("landing").style.display = "none";
+
+            document.getElementById("current-user").innerText=username;
+        });
+
+        document.getElementById("message").addEventListener("keyup", function (event) {
+            if(event.key == "Enter") {
+                let message = document.getElementById("message").value;
+                socket.emit("new-message", message);
+                document.getElementById("message").value = "";
+            }
+        });
+
+        socket.on("chat", function(data){
+            console.log(data);
+            let ul = document.getElementById("chat-messages");
+            let li = document.createElement("li");
+            let messageText = document.createTextNode(data["username"] + ":" + data["message"]);
+            li.appendChild(messageText);
+            ul.appendChild(li);
+        });
+
+    </script>
+
+</body>
+
+</html>
